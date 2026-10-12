@@ -1,0 +1,234 @@
+{
+    "active_key": {
+        "key_id": "KEY-A8A42BA0",
+        "key_bytes": "IlUIvZJd1XSyEGoWlIW8BSDtUECOc20Tx1Zzrsb9A5Q=",
+        "created_at": 1791373762.878176,
+        "created_time_str": "2026-10-07 17:19:22",
+        "status": "ACTIVE"
+    },
+    "revoked_keys": [
+        {
+            "key_id": "KEY-695B0778",
+            "revoked_at": "2026-10-07 17:19:22",
+            "status": "REVOKED"
+        },
+        {
+            "key_id": "KEY-3EB93FEB",
+            "revoked_at": "2026-10-07 17:18:21",
+            "status": "REVOKED"
+        },
+        {
+            "key_id": "KEY-2F4E053D",
+            "revoked_at": "2026-10-07 17:17:20",
+            "status": "REVOKED"
+        },
+        {
+            "key_id": "KEY-1B60560A",
+            "revoked_at": "2026-10-07 17:17:13",
+            "status": "REVOKED"
+        },
+        {
+            "key_id": "KEY-09D60666",
+            "revoked_at": "2026-10-07 17:17:07",
+            "status": "REVOKED"
+        },
+        {
+            "key_id": "KEY-B4F10840",
+            "revoked_at": "2026-10-07 17:16:05",
+            "status": "REVOKED"
+        },
+        {
+            "key_id": "KEY-EDC22E3B",
+            "revoked_at": "2026-10-07 17:15:03",
+            "status": "REVOKED"
+        },
+        {
+            "key_id": "KEY-34499CF3",
+            "revoked_at": "2026-10-07 16:16:33",
+            "status": "REVOKED"
+        },
+        {
+            "key_id": "KEY-8B696993",
+            "revoked_at": "2026-10-07 16:14:04",
+            "status": "REVOKED"
+        },
+        {
+            "key_id": "KEY-D31702AE",
+            "revoked_at": "2026-10-07 16:13:34",
+            "status": "REVOKED"
+        },
+        {
+            "key_id": "KEY-E3D629AC",
+            "revoked_at": "2026-10-07 16:05:39",
+            "status": "REVOKED"
+        },
+        {
+            "key_id": "KEY-5698D711",
+            "revoked_at": "2026-10-07 16:04:20",
+            "status": "REVOKED"
+        },
+        {
+            "key_id": "KEY-4E3E7FC6",
+            "revoked_at": "2026-10-07 16:03:20",
+            "status": "REVOKED"
+        },
+        {
+            "key_id": "KEY-B36D9E59",
+            "revoked_at": "2026-10-07 16:02:19",
+            "status": "REVOKED"
+        },
+        {
+            "key_id": "KEY-4FF36C65",
+            "revoked_at": "2026-10-07 15:41:39",
+            "status": "REVOKED"
+        },
+        {
+            "key_id": "KEY-F86C64E7",
+            "revoked_at": "2026-10-07 15:40:39",
+            "status": "REVOKED"
+        },
+        {
+            "key_id": "KEY-113AC976",
+            "revoked_at": "2026-10-07 15:38:42",
+            "status": "REVOKED"
+        },
+        {
+            "key_id": "KEY-BC4E2992",
+            "revoked_at": "2026-10-07 15:37:41",
+            "status": "REVOKED"
+        },
+        {
+            "key_id": "KEY-36DEABD9",
+            "revoked_at": "2026-10-07 15:36:40",
+            "status": "REVOKED"
+        },
+        {
+            "key_id": "KEY-83F9B6C4",
+            "revoked_at": "2026-10-07 15:35:39",
+            "status": "REVOKED"
+        },
+        {
+            "key_id": "KEY-EB570F29",
+            "revoked_at": "2026-10-07 15:33:54",
+            "status": "REVOKED"
+        },
+        {
+            "key_id": "KEY-CA0CBCF0",
+            "revoked_at": "2026-10-07 15:32:53",
+            "status": "REVOKED"
+        },
+        {
+            "key_id": "KEY-12CD5DD7",
+            "revoked_at": "2026-10-07 15:31:42",
+            "status": "REVOKED"
+        },
+        {
+            "key_id": "KEY-9F781E56",
+            "revoked_at": "2026-10-07 15:30:40",
+            "status": "REVOKED"
+        },
+        {
+            "key_id": "KEY-3A94A337",
+            "revoked_at": "2026-10-07 15:29:39",
+            "status": "REVOKED"
+        },
+        {
+            "key_id": "KEY-EDAD05F9",
+            "revoked_at": "2026-10-07 15:28:39",
+            "status": "REVOKED"
+        },
+        {
+            "key_id": "KEY-97FFEDC7",
+            "revoked_at": "2026-10-07 15:27:39",
+            "status": "REVOKED"
+        },
+        {
+            "key_id": "KEY-5A7A41EA",
+            "revoked_at": "2026-10-07 15:26:30",
+            "status": "REVOKED"
+        },
+        {
+            "key_id": "KEY-1048C98C",
+            "revoked_at": "2026-10-07 15:25:29",
+            "status": "REVOKED"
+        },
+        {
+            "key_id": "KEY-82A732CD",
+            "revoked_at": "2026-10-07 15:24:27",
+            "status": "REVOKED"
+        },
+        {
+            "key_id": "KEY-571A8414",
+            "revoked_at": "2026-10-07 15:23:25",
+            "status": "REVOKED"
+        },
+        {
+            "key_id": "KEY-F4520BAE",
+            "revoked_at": "2026-10-07 15:09:37",
+            "status": "REVOKED"
+        },
+        {
+            "key_id": "KEY-4BE1414B",
+            "revoked_at": "2026-10-07 13:21:31",
+            "status": "REVOKED"
+        },
+        {
+            "key_id": "KEY-FBD7BC26",
+            "revoked_at": "2026-10-07 13:18:59",
+            "status": "REVOKED"
+        },
+        {
+            "key_id": "KEY-68AB7789",
+            "revoked_at": "2026-10-07 13:12:39",
+            "status": "REVOKED"
+        },
+        {
+            "key_id": "KEY-4DC05F61",
+            "revoked_at": "2026-10-07 13:11:39",
+            "status": "REVOKED"
+        },
+        {
+            "key_id": "KEY-D9F3B823",
+            "revoked_at": "2026-10-07 13:09:46",
+            "status": "REVOKED"
+        },
+        {
+            "key_id": "KEY-4A4A38DC",
+            "revoked_at": "2026-10-07 13:08:45",
+            "status": "REVOKED"
+        },
+        {
+            "key_id": "KEY-1E9C6835",
+            "revoked_at": "2026-10-07 13:07:43",
+            "status": "REVOKED"
+        },
+        {
+            "key_id": "KEY-A6A1B02A",
+            "revoked_at": "2026-10-07 13:06:41",
+            "status": "REVOKED"
+        },
+        {
+            "key_id": "KEY-36B4239B",
+            "revoked_at": "2026-10-07 13:05:39",
+            "status": "REVOKED"
+        },
+        {
+            "key_id": "KEY-9175F665",
+            "revoked_at": "2026-10-07 12:56:45",
+            "status": "REVOKED"
+        },
+        {
+            "key_id": "KEY-4C445280",
+            "revoked_at": "2026-10-07 12:55:44",
+            "status": "REVOKED"
+        },
+        {
+            "key_id": "KEY-8BF5FD52",
+            "revoked_at": "2026-10-07 11:12:35",
+            "status": "REVOKED"
+        }
+    ],
+    "rotation_count": 42,
+    "key_lifetime": 60,
+    "is_deleted": false
+}

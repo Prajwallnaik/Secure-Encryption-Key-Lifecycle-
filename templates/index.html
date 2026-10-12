@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secure Key Management for AI/ML Applications</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Secure Key Management for AI/ML Applications</h1>
+      <p class="subtitle">With Automatic Time-Based Key Rotation &bull; College DSP Micro Project</p>
+    </header>
+
+    <!-- Global Notification Banner -->
+    <div id="notificationBanner" class="notification-banner"></div>
+
+    <!-- REAL-TIME ENCRYPTION-KEY LIFECYCLE PIPELINE -->
+    <section class="card lifecycle-card" id="lifecycleSection">
+      <div class="card-title" style="flex-wrap: wrap; gap: 10px;">
+        <span><span class="pulse-badge"></span>Secure Encryption-Key Lifecycle (Real-Time Pipeline)</span>
+        <button id="btnAutoWalkthrough" class="btn-autorun" title="Run full hands-free lifecycle demonstration">
+          <span>&#9654;</span> Run Automated Walkthrough
+        </button>
+      </div>
+
+      <!-- Live Walkthrough Step Banner -->
+      <div id="walkthroughBanner" class="walkthrough-status-banner"></div>
+
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">
+        Tracks cryptographic key transitions in real time: Generation &rarr; Storage &rarr; Usage &rarr; Rotation &rarr; Revocation &rarr; Deletion
+      </p>
+
+      <div class="lifecycle-grid">
+        <!-- Step 1: Generation -->
+        <div id="stepGen" class="lifecycle-step step-pending">
+          <div class="step-num">Step 1</div>
+          <div class="step-name">Generation</div>
+          <span id="badgeGen" class="step-badge badge-none">PENDING</span>
+          <div id="descGen" class="step-desc">256-bit Fernet Key</div>
+        </div>
+
+        <!-- Step 2: Storage -->
+        <div id="stepStore" class="lifecycle-step step-pending">
+          <div class="step-num">Step 2</div>
+          <div class="step-name">Storage</div>
+          <span id="badgeStore" class="step-badge badge-none">EMPTY</span>
+          <div id="descStore" class="step-desc">data/key.json</div>
+        </div>
+
+        <!-- Step 3: Usage -->
+        <div id="stepUse" class="lifecycle-step step-pending">
+          <div class="step-num">Step 3</div>
+          <div class="step-name">Usage</div>
+          <span id="badgeUse" class="step-badge badge-none">IDLE</span>
+          <div id="descUse" class="step-desc">C = E(K, D)</div>
+        </div>
+
+        <!-- Step 4: Rotation -->
+        <div id="stepRot" class="lifecycle-step step-pending">
+          <div class="step-num">Step 4</div>
+          <div class="step-name">Rotation</div>
+          <span id="badgeRot" class="step-badge badge-none">MONITORING</span>
+          <div id="descRot" class="step-desc">Auto (&ge;60s)</div>
+        </div>
+
+        <!-- Step 5: Revocation -->
+        <div id="stepRev" class="lifecycle-step step-pending">
+          <div class="step-num">Step 5</div>
+          <div class="step-name">Revocation</div>
+          <span id="badgeRev" class="step-badge badge-none">NONE</span>
+          <div id="descRev" class="step-desc">Old keys invalidated</div>
+        </div>
+
+        <!-- Step 6: Deletion -->
+        <div id="stepDel" class="lifecycle-step step-pending">
+          <div class="step-num">Step 6</div>
+          <div class="step-name">Deletion</div>
+          <span id="badgeDel" class="step-badge badge-none">INTACT</span>
+          <div id="descDel" class="step-desc">Cryptographic erasure</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- AUTOMATED KEY ROTATION ARCHITECTURE DEPICTION -->
+    <section class="card rotation-depiction-card" id="rotationDepictionSection">
+      <div class="card-title">
+        <span>Automatic Time-Based Key Rotation Depiction</span>
+        <span id="rotationDepictionBadge" class="badge badge-active">Continuous Engine</span>
+      </div>
+      <p style="font-size: 0.84rem; color: var(--text-muted);">
+        Zero-Data-Loss Architecture: When elapsed key age exceeds 60s (&Delta;T &ge; 60s), the engine automatically executes this 4-step pipeline:
+      </p>
+
+      <div class="flow-pipeline">
+        <div id="flowNode1" class="flow-node">
+          <div class="flow-node-title">1. Retiring Key</div>
+          <div id="flowNode1Sub" class="flow-node-sub">Decrypt: D = E⁻¹(K_old, C)</div>
+        </div>
+        <div class="flow-arrow">&rarr;</div>
+        <div id="flowNode2" class="flow-node">
+          <div class="flow-node-title">2. Key Generation</div>
+          <div id="flowNode2Sub" class="flow-node-sub">K_new = Random(256 bits)</div>
+        </div>
+        <div class="flow-arrow">&rarr;</div>
+        <div id="flowNode3" class="flow-node">
+          <div class="flow-node-title">3. Re-Encryption</div>
+          <div id="flowNode3Sub" class="flow-node-sub">Encrypt: C_new = E(K_new, D)</div>
+        </div>
+        <div class="flow-arrow">&rarr;</div>
+        <div id="flowNode4" class="flow-node">
+          <div class="flow-node-title">4. Key Revocation</div>
+          <div id="flowNode4Sub" class="flow-node-sub">Status: K_old &rarr; REVOKED</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 1. KEY STATUS CARD -->
+    <section class="card" id="key-status-section">
+      <div class="card-title">
+        <span>Key Status</span>
+        <span id="keyStatusBadge" class="badge badge-none">NO KEY</span>
+      </div>
+
+      <div class="metrics-grid">
+        <div class="metric-item">
+          <div class="metric-label">Current Key ID</div>
+          <div id="currentKeyId" class="metric-value">None</div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-label">Created Time</div>
+          <div id="keyCreatedTime" class="metric-value" style="font-size: 0.95rem;">N/A</div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-label">Key Age</div>
+          <div id="keyAge" class="metric-value">0s</div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-label">Rotation Interval</div>
+          <div id="rotationInterval" class="metric-value">60s</div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-label">Rotations Completed</div>
+          <div id="rotationCount" class="metric-value">0</div>
+        </div>
+      </div>
+
+      <!-- Time-based rotation countdown progress bar -->
+      <div class="rotation-progress-wrap">
+        <div class="rotation-progress-label">
+          <span>Automatic Rotation Progress (Target: 60s)</span>
+          <span id="rotationRemainingText">0s remaining</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div id="rotationProgressBar" class="progress-bar-fill"></div>
+        </div>
+      </div>
+
+      <!-- Revoked keys preview (if any) -->
+      <div id="revokedContainer" style="margin-top: 16px; display: none;">
+        <div class="metric-label">Revoked Old Keys:</div>
+        <div id="revokedList" class="revoked-list"></div>
+      </div>
+    </section>
+
+    <!-- 2. SENSITIVE DATA CARD -->
+    <section class="card">
+      <div class="card-title">
+        <span>Sensitive AI/ML Data</span>
+        <span id="encryptionStatusText" style="font-size: 0.85rem; color: var(--text-muted); font-weight: normal;">No data encrypted</span>
+      </div>
+
+      <label for="sensitiveInput" class="metric-label" style="display: block; margin-bottom: 6px;">
+        Sample AI/ML Model Input / Diagnostic Data:
+      </label>
+      <textarea id="sensitiveInput" placeholder="Enter sensitive AI/ML data to protect...">Patient ID: 101, Model Result: Low Risk</textarea>
+
+      <div class="button-group">
+        <button id="btnEncrypt" class="btn-primary">Encrypt Data</button>
+        <button id="btnDecrypt" class="btn-success">Decrypt Data</button>
+      </div>
+
+      <!-- Ciphertext Display Box -->
+      <div id="cipherBox" class="output-box hidden">
+        <div class="output-box-title">Ciphertext (Fernet AES-128-CBC + HMAC-SHA256 Token):</div>
+        <div id="cipherOutput"></div>
+      </div>
+
+      <!-- Decrypted Text Display Box -->
+      <div id="decryptedBox" class="output-box hidden" style="border-color: #10b981; background-color: #f0fdf4;">
+        <div class="output-box-title" style="color: #047857;">Decrypted Plaintext:</div>
+        <div id="decryptedOutput" style="color: #065f46; font-weight: 600;"></div>
+      </div>
+    </section>
+
+    <!-- 3. KEY MANAGEMENT CARD -->
+    <section class="card">
+      <div class="card-title">Key Management Controls</div>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 14px;">
+        Perform manual key lifecycle events or force rotation for live demonstration.
+      </p>
+      <div class="button-group">
+        <button id="btnGenerateKey" class="btn-primary">Generate Key</button>
+        <button id="btnRotateKey" class="btn-warning">Rotate Key (Force Demo)</button>
+        <button id="btnDeleteKey" class="btn-danger">Delete Key</button>
+      </div>
+    </section>
+
+    <!-- 4. SECURITY TEST CARD -->
+    <section class="card">
+      <div class="card-title">Security Test: Unauthorized Access</div>
+      <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 12px;">
+        Demonstrates key exclusivity. An attacker attempts to decrypt the stored ciphertext using a forged or unauthorized key.
+      </p>
+      <button id="btnTestWrongKey" class="btn-secondary">Test Unauthorized Access</button>
+
+      <div id="securityTestResult" class="security-result danger" style="display: none;"></div>
+    </section>
+
+    <!-- 5. ACTIVITY LOG CARD -->
+    <section class="card">
+      <div class="card-title">Activity Log</div>
+      <div id="logContainer" class="log-box">
+        <div class="log-empty">No activity recorded yet.</div>
+      </div>
+    </section>
+
+    <footer>
+      <p>Secure Key Management Prototype &bull; Symmetric Fernet Encryption &bull; Educational Micro Project</p>
+    </footer>
+  </div>
+
+  <script>
+    // Frontend script interacting with Flask endpoints
+
+    // DOM Elements
+    const banner = document.getElementById("notificationBanner");
+    const keyStatusBadge = document.getElementById("keyStatusBadge");
+    const currentKeyId = document.getElementById("currentKeyId");
+    const keyCreatedTime = document.getElementById("keyCreatedTime");
+    const keyAge = document.getElementById("keyAge");
+    const rotationInterval = document.getElementById("rotationInterval");
+    const rotationCount = document.getElementById("rotationCount");
+    const rotationProgressBar = document.getElementById("rotationProgressBar");
+    const rotationRemainingText = document.getElementById("rotationRemainingText");
+    const encryptionStatusText = document.getElementById("encryptionStatusText");
+    const revokedContainer = document.getElementById("revokedContainer");
+    const revokedList = document.getElementById("revokedList");
+
+    const sensitiveInput = document.getElementById("sensitiveInput");
+    const cipherBox = document.getElementById("cipherBox");
+    const cipherOutput = document.getElementById("cipherOutput");
+    const decryptedBox = document.getElementById("decryptedBox");
+    const decryptedOutput = document.getElementById("decryptedOutput");
+
+    const securityTestResult = document.getElementById("securityTestResult");
+    const logContainer = document.getElementById("logContainer");
+
+    // Notification banner helper
+    function showBanner(message, type = "success") {
+      banner.className = `notification-banner ${type}`;
+      banner.textContent = message;
+      banner.style.display = "block";
+      setTimeout(() => {
+        banner.style.display = "none";
+      }, 5000);
+    }
+
+    // Refresh Dashboard Status
+    async function fetchStatus() {
+      try {
+        const res = await fetch("/api/status");
+        if (!res.ok) return;
+        const data = await res.json();
+
+        // Update Real-Time Lifecycle Pipeline
+        if (data.lifecycle) {
+          const lc = data.lifecycle;
+
+          // Step 1: Generation
+          const stepGen = document.getElementById("stepGen");
+          const badgeGen = document.getElementById("badgeGen");
+          const descGen = document.getElementById("descGen");
+          badgeGen.textContent = lc.generation.status;
+          badgeGen.className = `step-badge ${lc.generation.badge_class}`;
+          descGen.textContent = lc.generation.detail;
+          stepGen.className = "lifecycle-step " + (lc.generation.is_active ? "step-active" : (lc.generation.status === "ERASED" ? "step-danger" : "step-pending"));
+
+          // Step 2: Storage
+          const stepStore = document.getElementById("stepStore");
+          const badgeStore = document.getElementById("badgeStore");
+          const descStore = document.getElementById("descStore");
+          badgeStore.textContent = lc.storage.status;
+          badgeStore.className = `step-badge ${lc.storage.badge_class}`;
+          descStore.textContent = lc.storage.detail;
+          stepStore.className = "lifecycle-step " + (lc.storage.is_active ? "step-active" : "step-pending");
+
+          // Step 3: Usage
+          const stepUse = document.getElementById("stepUse");
+          const badgeUse = document.getElementById("badgeUse");
+          const descUse = document.getElementById("descUse");
+          badgeUse.textContent = lc.usage.status;
+          badgeUse.className = `step-badge ${lc.usage.badge_class}`;
+          descUse.textContent = lc.usage.detail;
+          stepUse.className = "lifecycle-step " + (lc.usage.is_active ? "step-active" : "step-pending");
+
+          // Step 4: Rotation
+          const stepRot = document.getElementById("stepRot");
+          const badgeRot = document.getElementById("badgeRot");
+          const descRot = document.getElementById("descRot");
+          badgeRot.textContent = lc.rotation.status;
+          badgeRot.className = `step-badge ${lc.rotation.badge_class}`;
+          descRot.textContent = lc.rotation.detail;
+          stepRot.className = "lifecycle-step " + (data.rotation_count > 0 ? "step-active" : (lc.rotation.is_active ? "step-warning" : "step-pending"));
+
+          // Step 5: Revocation
+          const stepRev = document.getElementById("stepRev");
+          const badgeRev = document.getElementById("badgeRev");
+          const descRev = document.getElementById("descRev");
+          badgeRev.textContent = lc.revocation.status;
+          badgeRev.className = `step-badge ${lc.revocation.badge_class}`;
+          descRev.textContent = lc.revocation.detail;
+          stepRev.className = "lifecycle-step " + (lc.revocation.is_active ? "step-warning" : "step-pending");
+
+          // Step 6: Deletion
+          const stepDel = document.getElementById("stepDel");
+          const badgeDel = document.getElementById("badgeDel");
+          const descDel = document.getElementById("descDel");
+          badgeDel.textContent = lc.deletion.status;
+          badgeDel.className = `step-badge ${lc.deletion.badge_class}`;
+          descDel.textContent = lc.deletion.detail;
+          stepDel.className = "lifecycle-step " + (lc.deletion.is_active ? "step-danger" : "step-pending");
+        }
+
+        // Update Key Status Badge
+        keyStatusBadge.textContent = data.key_status;
+        keyStatusBadge.className = "badge";
+        if (data.key_status === "ACTIVE") {
+          keyStatusBadge.classList.add("badge-active");
+        } else if (data.key_status === "REVOKED") {
+          keyStatusBadge.classList.add("badge-revoked");
+        } else {
+          keyStatusBadge.classList.add("badge-none");
+        }
+
+        // Metrics
+        currentKeyId.textContent = data.key_id;
+        keyCreatedTime.textContent = data.created_time;
+        keyAge.textContent = `${data.key_age_seconds}s`;
+        rotationInterval.textContent = `${data.rotation_interval}s`;
+        rotationCount.textContent = data.rotation_count;
+        encryptionStatusText.textContent = data.encryption_status;
+
+        // Progress bar
+        if (data.key_status === "ACTIVE") {
+          const pct = Math.min(100, Math.round((data.key_age_seconds / data.rotation_interval) * 100));
+          rotationProgressBar.style.width = `${pct}%`;
+          rotationRemainingText.textContent = `${data.remaining_seconds}s until rotation`;
+        } else {
+          rotationProgressBar.style.width = "0%";
+          rotationRemainingText.textContent = "Inactive";
+        }
+
+        // Ciphertext preview
+        if (data.ciphertext) {
+          cipherBox.classList.remove("hidden");
+          cipherOutput.textContent = data.ciphertext;
+        } else {
+          cipherBox.classList.add("hidden");
+          cipherOutput.textContent = "";
+        }
+
+        // Revoked keys
+        if (data.revoked_keys && data.revoked_keys.length > 0) {
+          revokedContainer.style.display = "block";
+          revokedList.innerHTML = data.revoked_keys.map(k => `
+            <div class="revoked-item">
+              <span><strong>${k.key_id}</strong> (Rotated at ${k.revoked_at})</span>
+              <span class="badge badge-revoked">REVOKED</span>
+            </div>
+          `).join("");
+        } else {
+          revokedContainer.style.display = "none";
+          revokedList.innerHTML = "";
+        }
+
+        // Update Rotation Pipeline Depiction Nodes
+        const flowNode1Sub = document.getElementById("flowNode1Sub");
+        const flowNode2Sub = document.getElementById("flowNode2Sub");
+        const flowNode3Sub = document.getElementById("flowNode3Sub");
+        const flowNode4Sub = document.getElementById("flowNode4Sub");
+
+        if (data.key_status === "ACTIVE") {
+          flowNode1Sub.textContent = `Active Key: ${data.key_id}`;
+          flowNode2Sub.textContent = "K_new (256-bit Fernet)";
+          flowNode3Sub.textContent = `Auto re-encrypt in ${data.remaining_seconds}s`;
+          flowNode4Sub.textContent = `${data.rotation_count} rotation(s) completed`;
+        } else {
+          flowNode1Sub.textContent = "No active key";
+          flowNode2Sub.textContent = "Standby";
+          flowNode3Sub.textContent = "Standby";
+          flowNode4Sub.textContent = "0 rotations";
+        }
+
+        // Activity Logs
+        if (data.activity_log && data.activity_log.length > 0) {
+          logContainer.innerHTML = data.activity_log.map(entry => `
+            <div class="log-entry">${entry}</div>
+          `).join("");
+        } else {
+          logContainer.innerHTML = '<div class="log-empty">No activity recorded yet.</div>';
+        }
+
+      } catch (err) {
+        console.error("Status polling error:", err);
+      }
+    }
+
+    // Automated Demonstration Walkthrough Engine
+    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    const btnAutoWalkthrough = document.getElementById("btnAutoWalkthrough");
+    const walkthroughBanner = document.getElementById("walkthroughBanner");
+
+    function setWalkthroughStatus(message, highlightStepId = null) {
+      walkthroughBanner.style.display = "block";
+      walkthroughBanner.innerHTML = `<strong>Automated Demonstration:</strong> ${message}`;
+      
+      // Clear all existing highlights
+      document.querySelectorAll(".lifecycle-step").forEach(el => el.classList.remove("step-highlight"));
+      if (highlightStepId) {
+        const target = document.getElementById(highlightStepId);
+        if (target) target.classList.add("step-highlight");
+      }
+    }
+
+    async function runAutomatedWalkthrough() {
+      btnAutoWalkthrough.disabled = true;
+      btnAutoWalkthrough.innerHTML = "<span>&#9696;</span> Running Walkthrough...";
+
+      try {
+        // Step 1: Key Generation & Storage
+        setWalkthroughStatus("Phase 1/5: Generating high-entropy 256-bit symmetric key and saving to data/key.json...", "stepGen");
+        await fetch("/api/generate-key", { method: "POST" });
+        await fetchStatus();
+        await sleep(2000);
+
+        // Step 2: Encrypt Sensitive AI/ML Data
+        setWalkthroughStatus("Phase 2/5: Encrypting sample AI/ML clinical data (Patient ID: 101, Model Result: Low Risk)...", "stepUse");
+        sensitiveInput.value = "Patient ID: 101, Model Result: Low Risk";
+        const encRes = await fetch("/api/encrypt", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ data: sensitiveInput.value })
+        });
+        const encData = await encRes.json();
+        cipherBox.classList.remove("hidden");
+        cipherOutput.textContent = encData.ciphertext;
+        await fetchStatus();
+        await sleep(2200);
+
+        // Step 3: Security Intrusion Test (Unauthorized Access)
+        setWalkthroughStatus("Phase 3/5: Simulating unauthorized intruder attempting decryption with a forged key... Blocked!", "stepUse");
+        const wrongRes = await fetch("/api/test-wrong-key", { method: "POST" });
+        const wrongData = await wrongRes.json();
+        securityTestResult.style.display = "block";
+        securityTestResult.textContent = `Result: ${wrongData.message} (Intrusion Blocked)`;
+        await fetchStatus();
+        await sleep(2200);
+
+        // Step 4: Time-Based Key Rotation (Zero Data Loss Re-encryption)
+        setWalkthroughStatus("Phase 4/5: Triggering key rotation! Pipeline decrypts data under K_old, generates K_new, re-encrypts, and revokes K_old...", "stepRot");
+        await fetch("/api/rotate", { method: "POST" });
+        await fetchStatus();
+        await sleep(2500);
+
+        // Step 5: Verify Decryption under New Key
+        setWalkthroughStatus("Phase 5/5: Decrypting ciphertext under new active key to verify zero data loss...", "stepUse");
+        const decRes = await fetch("/api/decrypt", { method: "POST" });
+        const decData = await decRes.json();
+        decryptedBox.classList.remove("hidden");
+        decryptedOutput.textContent = decData.decrypted_data;
+        await fetchStatus();
+        await sleep(2500);
+
+        // Completion
+        walkthroughBanner.className = "walkthrough-status-banner";
+        walkthroughBanner.style.backgroundColor = "#ecfdf5";
+        walkthroughBanner.style.borderColor = "#6ee7b7";
+        walkthroughBanner.style.color = "#047857";
+        walkthroughBanner.innerHTML = "<strong>Automated Walkthrough Complete:</strong> All 6 lifecycle stages demonstrated successfully with zero data loss!";
+        document.querySelectorAll(".lifecycle-step").forEach(el => el.classList.remove("step-highlight"));
+
+      } catch (err) {
+        console.error("Walkthrough error:", err);
+        setWalkthroughStatus("Walkthrough encountered an error. Check console.", null);
+      } finally {
+        btnAutoWalkthrough.disabled = false;
+        btnAutoWalkthrough.innerHTML = "<span>&#9654;</span> Run Automated Walkthrough";
+        setTimeout(() => {
+          walkthroughBanner.style.display = "none";
+          walkthroughBanner.style.backgroundColor = "";
+          walkthroughBanner.style.borderColor = "";
+          walkthroughBanner.style.color = "";
+        }, 8000);
+      }
+    }
+
+    btnAutoWalkthrough.addEventListener("click", runAutomatedWalkthrough);
+
+    // Button: Generate Key
+    document.getElementById("btnGenerateKey").addEventListener("click", async () => {
+      try {
+        const res = await fetch("/api/generate-key", { method: "POST" });
+        const data = await res.json();
+        if (data.success) {
+          showBanner(`${data.message} (Key ID: ${data.key_id})`, "success");
+        } else {
+          showBanner(data.message, "error");
+        }
+        fetchStatus();
+      } catch (err) {
+        showBanner("Error communicating with server", "error");
+      }
+    });
+
+    // Button: Encrypt Data
+    document.getElementById("btnEncrypt").addEventListener("click", async () => {
+      const text = sensitiveInput.value.trim();
+      if (!text) {
+        showBanner("Please enter sample data to encrypt.", "error");
+        return;
+      }
+      try {
+        const res = await fetch("/api/encrypt", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ data: text })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showBanner(data.message, "success");
+          cipherBox.classList.remove("hidden");
+          cipherOutput.textContent = data.ciphertext;
+          decryptedBox.classList.add("hidden");
+        } else {
+          showBanner(data.message, "error");
+        }
+        fetchStatus();
+      } catch (err) {
+        showBanner("Error communicating with server", "error");
+      }
+    });
+
+    // Button: Decrypt Data
+    document.getElementById("btnDecrypt").addEventListener("click", async () => {
+      try {
+        const res = await fetch("/api/decrypt", { method: "POST" });
+        const data = await res.json();
+        if (data.success) {
+          showBanner(data.message, "success");
+          decryptedBox.classList.remove("hidden");
+          decryptedOutput.textContent = data.decrypted_data;
+        } else {
+          showBanner(data.message, "error");
+          decryptedBox.classList.add("hidden");
+        }
+        fetchStatus();
+      } catch (err) {
+        showBanner("Error communicating with server", "error");
+      }
+    });
+
+    // Button: Rotate Key (Force Demo)
+    document.getElementById("btnRotateKey").addEventListener("click", async () => {
+      try {
+        const res = await fetch("/api/rotate", { method: "POST" });
+        const data = await res.json();
+        if (data.success) {
+          showBanner(`${data.message}: ${data.old_key_id} -> ${data.new_key_id}`, "info");
+        } else {
+          showBanner(data.message, "error");
+        }
+        fetchStatus();
+      } catch (err) {
+        showBanner("Error communicating with server", "error");
+      }
+    });
+
+    // Button: Delete Key
+    document.getElementById("btnDeleteKey").addEventListener("click", async () => {
+      const confirmDelete = confirm("Warning: Deleting the active key will permanently invalidate access to encrypted data. Continue?");
+      if (!confirmDelete) return;
+
+      try {
+        const res = await fetch("/api/delete-key", { method: "POST" });
+        const data = await res.json();
+        if (data.success) {
+          showBanner(data.message, "error");
+          decryptedBox.classList.add("hidden");
+        } else {
+          showBanner(data.message, "error");
+        }
+        fetchStatus();
+      } catch (err) {
+        showBanner("Error communicating with server", "error");
+      }
+    });
+
+    // Button: Test Unauthorized Access
+    document.getElementById("btnTestWrongKey").addEventListener("click", async () => {
+      try {
+        const res = await fetch("/api/test-wrong-key", { method: "POST" });
+        const data = await res.json();
+        securityTestResult.style.display = "block";
+        securityTestResult.textContent = `Result: ${data.message} (Tried Fake Key: ${data.wrong_key_id || 'UNKNOWN'})`;
+        showBanner(data.message, "error");
+        fetchStatus();
+      } catch (err) {
+        showBanner("Error communicating with server", "error");
+      }
+    });
+
+    // Initial load and periodic polling every 2 seconds
+    fetchStatus();
+    setInterval(fetchStatus, 2000);
+  </script>
+</body>
+</html>

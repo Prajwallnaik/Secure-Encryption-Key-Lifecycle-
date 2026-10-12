@@ -1,0 +1,10 @@
+[project]
+name = "secure-key-management"
+version = "0.1.0"
+description = "Secure Key Management for AI/ML Applications with Automatic Key Rotation"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "flask>=3.0.0",
+    "cryptography>=42.0.0",
+]
